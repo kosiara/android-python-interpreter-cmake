@@ -1,6 +1,7 @@
 //
 // Created by Bartosz Kosarzycki on 3/30/17.
 //
+#include "Python.h"
 
 #ifndef PYTHONINTERPRETEREXAMPLE_NATIVE_UTIL_H
 #define PYTHONINTERPRETEREXAMPLE_NATIVE_UTIL_H
@@ -8,6 +9,8 @@
 int dir_exists(char *filename);
 
 int file_exists(const char *filename);
+
+PyMODINIT_FUNC initandroidembed(void);
 
 const std::string PYTHON_SIMPLE_SCRIPT = "class LogFile(object):\n"
         "    def __init__(self):\n"

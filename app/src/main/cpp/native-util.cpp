@@ -4,6 +4,20 @@
 
 #include <stdio.h>
 #include <sys/stat.h>
+#include <android/log.h>
+#include "Python.h"
+
+#define LOG(n, x) __android_log_write(ANDROID_LOG_INFO, (n), (x))
+#define LOGP(x) LOG("python", (x))
+
+static PyObject *androidembed_log(PyObject *self, PyObject *args) {
+    char *logstr = NULL;
+    if (!PyArg_ParseTuple(args, "s", &logstr)) {
+        return NULL;
+    }
+    LOG(getenv("PYTHON_NAME"), logstr);
+    Py_RETURN_NONE;
+}
 
 int dir_exists(char *filename) {
     struct stat st;
@@ -21,4 +35,15 @@ int file_exists(const char *filename) {
         return 1;
     }
     return 0;
+}
+
+static PyMethodDef AndroidEmbedMethods[] = {
+        {"log", androidembed_log, METH_VARARGS, "Log on android platform"},
+        {NULL, NULL, 0, NULL}};
+
+static struct PyModuleDef androidembed = {PyModuleDef_HEAD_INIT, "androidembed",
+                                          "", -1, AndroidEmbedMethods};
+
+PyMODINIT_FUNC initandroidembed(void) {
+    return PyModule_Create(&androidembed);
 }

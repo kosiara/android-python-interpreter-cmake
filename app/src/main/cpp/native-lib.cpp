@@ -6,34 +6,9 @@
 #include "native-util.h"
 #include "Python.h"
 
-
 #define ENTRYPOINT_MAXLEN 128
 #define LOG(n, x) __android_log_write(ANDROID_LOG_INFO, (n), (x))
 #define LOGP(x) LOG("python", (x))
-
-//================ move these methods =====================
-
-static PyObject *androidembed_log(PyObject *self, PyObject *args) {
-    char *logstr = NULL;
-    if (!PyArg_ParseTuple(args, "s", &logstr)) {
-        return NULL;
-    }
-    LOG(getenv("PYTHON_NAME"), logstr);
-    Py_RETURN_NONE;
-}
-
-static PyMethodDef AndroidEmbedMethods[] = {
-        {"log", androidembed_log, METH_VARARGS, "Log on android platform"},
-        {NULL, NULL, 0, NULL}};
-
-static struct PyModuleDef androidembed = {PyModuleDef_HEAD_INIT, "androidembed",
-                                          "", -1, AndroidEmbedMethods};
-
-PyMODINIT_FUNC initandroidembed(void) {
-    return PyModule_Create(&androidembed);
-}
-
-//================ move these methods =====================
 
 extern "C"
 JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
@@ -50,8 +25,7 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
     const char *python_home = env->GetStringUTFChars(j_python_home, &iscopy);
     const char *python_path = env->GetStringUTFChars(j_python_path, &iscopy);
     const char *arg = env->GetStringUTFChars(j_arg, &iscopy);
-
-
+    
     //================ remove these lines =============================
     setenv("ANDROID_PRIVATE", android_private, 1);
     setenv("ANDROID_ARGUMENT", android_argument, 1);
