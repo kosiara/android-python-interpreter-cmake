@@ -16,6 +16,7 @@ android {
             }
         }
         ndk {
+            // we use only armaebi for now
             abiFilters "armeabi" //, "armeabi-v7a", "x86", "mips"
         }
     }
