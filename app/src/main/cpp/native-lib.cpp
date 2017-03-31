@@ -13,13 +13,11 @@
 extern "C"
 JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
         JNIEnv *env, jobject thiz,
-        jstring j_android_argument, jstring j_service_entrypoint,
-        jstring j_python_name,
-        jstring j_arg) {
+        jstring j_android_argument, jstring j_script_entrypoint, jstring j_python_name) {
 
     jboolean iscopy;
     const char *env_argument = env->GetStringUTFChars(j_android_argument, &iscopy);
-    const char *env_entrypoint = env->GetStringUTFChars(j_service_entrypoint, &iscopy);
+    const char *env_script_main_entrypoint = env->GetStringUTFChars(j_script_entrypoint, &iscopy);
     const char *env_logname = env->GetStringUTFChars(j_python_name, &iscopy);
 
     if (env_logname == NULL)
@@ -83,7 +81,7 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
 
     LOGP("Run user program, change dir and execute entrypoint");
     char entrypoint[ENTRYPOINT_MAXLEN];
-    snprintf(entrypoint, 256, "%s/assets/python/main.py", env_argument);
+    snprintf(entrypoint, 256, "%s/%s", env_argument, env_script_main_entrypoint);
 
     LOGP((std::string("Entrypoint is: ") + entrypoint).c_str());
 

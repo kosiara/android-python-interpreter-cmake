@@ -34,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
         assetExtractor.removeAssets("python");
         assetExtractor.copyAssets("python");
         String appDataDir = assetExtractor.getAppDataDir();
+
+        //initialize python
         initializePython(appDataDir);
 
         tv.setText(jniString);
@@ -41,11 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void initializePython(String appDataDir) {
 
-        String filesDirectory = appDataDir;
-        String app_root_dir = appDataDir;
-        String androidArgument = app_root_dir;
+        String androidArgument = appDataDir;
         String serviceEntrypoint = "assets/python/main.py";
-        String pythonServiceArgument = "NOT_USED_TMP_SERVICE_ARG";
 
         String app_root =  getFilesDir().getAbsolutePath() + "/app";
         File app_root_file = new File(app_root);
@@ -55,10 +54,7 @@ public class MainActivity extends AppCompatActivity {
         if (!new File(appDataDir + "/assets/python/stdlib.zip").exists())
             throw new RuntimeException("Assets haven't been extracted !");
 
-        nativePythonStart(
-                androidArgument,
-                serviceEntrypoint, "python3.5",
-                pythonServiceArgument);
+        nativePythonStart(androidArgument, serviceEntrypoint, "python3.5");
     }
 
     /**
@@ -67,13 +63,9 @@ public class MainActivity extends AppCompatActivity {
      * @param androidArgument
      * @param serviceEntrypoint
      * @param pythonName
-     * @param pythonServiceArgument
      * @return
      */
-    public static native int nativePythonStart(
-            String androidArgument,
-            String serviceEntrypoint, String pythonName,
-            String pythonServiceArgument);
+    public static native int nativePythonStart(String androidArgument, String serviceEntrypoint, String pythonName);
 
     public native String stringFromJNI();
 }
