@@ -12,9 +12,9 @@
 
 extern "C"
 JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
-        JNIEnv *env, jobject thiz, jstring j_android_private,
+        JNIEnv *env, jobject thiz,
         jstring j_android_argument, jstring j_service_entrypoint,
-        jstring j_python_name, jstring j_python_home, jstring j_python_path,
+        jstring j_python_name,
         jstring j_arg) {
 
     jboolean iscopy;

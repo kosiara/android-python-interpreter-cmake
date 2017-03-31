@@ -43,13 +43,8 @@ public class MainActivity extends AppCompatActivity {
 
         String filesDirectory = appDataDir;
         String app_root_dir = appDataDir;
-        String androidPrivate = appDataDir;
         String androidArgument = app_root_dir;
         String serviceEntrypoint = "assets/python/main.py";
-        String pythonHome = app_root_dir;
-        String pythonPath = app_root_dir + ":" + app_root_dir + "/lib";
-        String serviceTitle = "NOT_USED_TMP_SERVICE_NAME";
-        String serviceDescription = "NOT_USED_TMP_SERVICE_DESCR";
         String pythonServiceArgument = "NOT_USED_TMP_SERVICE_ARG";
 
         String app_root =  getFilesDir().getAbsolutePath() + "/app";
@@ -61,28 +56,23 @@ public class MainActivity extends AppCompatActivity {
             throw new RuntimeException("Assets haven't been extracted !");
 
         nativePythonStart(
-                androidPrivate, androidArgument,
+                androidArgument,
                 serviceEntrypoint, "python3.5",
-                pythonHome, pythonPath,
                 pythonServiceArgument);
     }
 
     /**
      * Native method call to python initialization.
      *
-     * @param androidPrivate
      * @param androidArgument
      * @param serviceEntrypoint
      * @param pythonName
-     * @param pythonHome
-     * @param pythonPath
      * @param pythonServiceArgument
      * @return
      */
     public static native int nativePythonStart(
-            String androidPrivate, String androidArgument,
+            String androidArgument,
             String serviceEntrypoint, String pythonName,
-            String pythonHome, String pythonPath,
             String pythonServiceArgument);
 
     public native String stringFromJNI();
