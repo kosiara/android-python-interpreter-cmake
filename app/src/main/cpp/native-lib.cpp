@@ -26,34 +26,17 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
     const char *python_path = env->GetStringUTFChars(j_python_path, &iscopy);
     const char *arg = env->GetStringUTFChars(j_arg, &iscopy);
     
-    //================ remove these lines =============================
-    setenv("ANDROID_PRIVATE", android_private, 1);
-    setenv("ANDROID_ARGUMENT", android_argument, 1);
-    setenv("ANDROID_APP_PATH", android_argument, 1);
-    setenv("ANDROID_ENTRYPOINT", service_entrypoint, 1);
-    setenv("PYTHONOPTIMIZE", "2", 1);
-    setenv("PYTHON_NAME", python_name, 1);
-    setenv("PYTHONHOME", python_home, 1);
-    setenv("PYTHONPATH", python_path, 1);
-    setenv("PYTHON_SERVICE_ARGUMENT", arg, 1);
-    //================ remove these lines =============================
-
-
-    char *env_argument = NULL;
-    char *env_entrypoint = NULL;
-    char *env_logname = NULL;
+    const char *env_argument = NULL;
+    const char *env_entrypoint = NULL;
+    const char *env_logname = NULL;
     char entrypoint[ENTRYPOINT_MAXLEN];
     int ret = 0;
     FILE *fd;
 
-    /* AND: Several filepaths are hardcoded here, these must be made
-       configurable */
-    /* AND: P4A uses env vars...not sure what's best */
     LOGP("Initialize Python for Android");
-    env_argument = getenv("ANDROID_ARGUMENT");
-    setenv("ANDROID_APP_PATH", android_argument, 1);
-    env_entrypoint = getenv("ANDROID_ENTRYPOINT");
-    env_logname = getenv("PYTHON_NAME");
+    env_argument = android_argument;
+    env_entrypoint = service_entrypoint;
+    env_logname = python_name;
 
     if (env_logname == NULL) {
         env_logname = "python";
