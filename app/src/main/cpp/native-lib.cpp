@@ -22,39 +22,31 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
     const char *env_entrypoint = env->GetStringUTFChars(j_service_entrypoint, &iscopy);
     const char *env_logname = env->GetStringUTFChars(j_python_name, &iscopy);
 
+    if (env_logname == NULL)
+        env_logname = "python";
+
     int ret = 0;
     FILE *fd;
+    LOGP("Initializing Python for Android ...");
 
-    LOGP("Initialize Python for Android");
-
-    if (env_logname == NULL) {
-        env_logname = "python";
-        setenv("PYTHON_NAME", "python", 1);
-    }
-
-    LOGP("Changing directory to: ");
-    LOGP(env_argument);
+    LOGP((std::string("Changing directory to: ") + env_argument).c_str());
     chdir(env_argument);
 
     Py_SetProgramName(L"android_python");
     PyImport_AppendInittab("androidembed", initandroidembed);
 
-    LOGP("Preparing to initialize python");
+    LOGP("Preparing to initialize python ...");
 
     if (dir_exists("assets/python/")) {
         LOGP("crystax_python exists");
         char paths[256];
-        snprintf(paths, 256,
-                 "%s/assets/python/stdlib.zip:%s/assets/python/modules",
-                 env_argument, env_argument);
+        snprintf(paths, 256, "%s/assets/python/stdlib.zip:%s/assets/python/modules", env_argument, env_argument);
 
-        LOGP("calculated paths to be...");
-        LOGP(paths);
-
+        LOGP((std::string("Calculated paths: ") + paths).c_str());
         wchar_t *wchar_paths = Py_DecodeLocale(paths, NULL);
         Py_SetPath(wchar_paths);
 
-        LOGP("set wchar paths...");
+        LOGP("Set wchar paths.");
     } else {
         LOGP("crystax_python does not exist");
     }
@@ -72,12 +64,10 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
     // inject our bootstrap code to redirect python stdin/stdout replace sys.path with our path
     PyRun_SimpleString("import sys, posix\n");
 
-
+    LOGP("Set system paths...");
     if (dir_exists("assets/python/")) {
         char add_site_packages_dir[256];
-        snprintf(add_site_packages_dir, 256,
-                 "sys.path.append('%s/assets/python/site-packages')",
-                 env_argument);
+        snprintf(add_site_packages_dir, 256, "sys.path.append('%s/assets/python/site-packages')", env_argument);
 
         PyRun_SimpleString("import sys\n"
                                    "sys.argv = ['notaninterpreterreally']\n"
@@ -88,20 +78,18 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
 
     LOGP("Trying to run a simple script in String:");
     PyRun_SimpleString(PYTHON_SIMPLE_SCRIPT.c_str());
-    LOGP("AND: Ran string");
+    LOGP("Ran string");
 
 
     LOGP("Run user program, change dir and execute entrypoint");
     char entrypoint[ENTRYPOINT_MAXLEN];
     snprintf(entrypoint, 256, "%s/assets/python/main.py", env_argument);
 
-    LOGP("Entrypoint is:");
-    LOGP(entrypoint);
+    LOGP((std::string("Entrypoint is: ") + entrypoint).c_str());
 
     fd = fopen(entrypoint, "r");
     if (fd == NULL) {
-        LOGP("Open the entrypoint failed");
-        LOGP(entrypoint);
+        LOGP((std::string("Open the entrypoint failed: ") + entrypoint).c_str());
         return -1;
     }
 
@@ -112,8 +100,7 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
         ret = 1;
         PyErr_Print(); /* This exits with the right code if SystemExit. */
         PyObject *f = PySys_GetObject("stdout");
-        if (PyFile_WriteString(
-                "\n", f))
+        if (PyFile_WriteString("\n", f))
             PyErr_Clear();
     }
 
