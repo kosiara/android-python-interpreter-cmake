@@ -3,6 +3,8 @@
 //
 
 #include <stdio.h>
+#include <string>
+#include <cstring>
 #include <sys/stat.h>
 #include <android/log.h>
 #include "Python.h"
@@ -35,6 +37,19 @@ int file_exists(const char *filename) {
         return 1;
     }
     return 0;
+}
+
+void runUnitTestFile(const char *env_argument, const char *unit_test_file) {
+    FILE *fd; int ret; char python_tests_main[256];
+    snprintf(python_tests_main, 256, "%s/assets/python/modules/test/%s", env_argument, unit_test_file);
+
+    LOGP((std::string("Entrypoint is: ") + python_tests_main).c_str());
+
+    file_exists(python_tests_main);
+
+    fd = fopen(python_tests_main, "r");
+    ret = PyRun_SimpleFile(fd, python_tests_main);
+    //LOGP((std::string("Ran UnitTest : ") + python_tests_main).c_str());
 }
 
 static PyMethodDef AndroidEmbedMethods[] = {

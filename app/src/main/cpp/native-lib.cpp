@@ -102,8 +102,13 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
             PyErr_Clear();
     }
 
-    Py_Finalize();
     fclose(fd);
+
+    //LOGP("Run Unit tests....");
+    //runUnitTestFile(env_argument, "test_int.py");
+    //runUnitTestFile(env_argument, "test_int_literal.py");
+
+    Py_Finalize();
 
     LOGP("Python for android ended.");
     return 0;

@@ -12,6 +12,8 @@ int file_exists(const char *filename);
 
 PyMODINIT_FUNC initandroidembed(void);
 
+void runUnitTestFile(const char *env_argument, const char *unit_test_file);
+
 const std::string PYTHON_SIMPLE_SCRIPT = "class LogFile(object):\n"
         "    def __init__(self):\n"
         "        self.buffer = ''\n"
