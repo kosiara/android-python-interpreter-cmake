@@ -7,7 +7,7 @@ set(CRYSTAX_PATH /Users/bko/crystax-ndk-10.3.2)
 
 
 set(PYTHON_HEADERS ${CRYSTAX_PATH}/sources/python/3.5/include/python/)
-set(PYTHON_LIBS ${CRYSTAX_PATH}/sources/python/3.6/libs/)
+set(PYTHON_LIBS ${CRYSTAX_PATH}/sources/python/3.5/libs/)
 include_directories (${PYTHON_HEADERS})
 include_directories (${PYTHON_LIBS})
 
