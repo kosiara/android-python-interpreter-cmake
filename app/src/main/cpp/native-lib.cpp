@@ -18,37 +18,25 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
         jstring j_arg) {
 
     jboolean iscopy;
-    const char *android_private = env->GetStringUTFChars(j_android_private, &iscopy);
-    const char *android_argument = env->GetStringUTFChars(j_android_argument, &iscopy);
-    const char *service_entrypoint = env->GetStringUTFChars(j_service_entrypoint, &iscopy);
-    const char *python_name = env->GetStringUTFChars(j_python_name, &iscopy);
-    const char *python_home = env->GetStringUTFChars(j_python_home, &iscopy);
-    const char *python_path = env->GetStringUTFChars(j_python_path, &iscopy);
-    const char *arg = env->GetStringUTFChars(j_arg, &iscopy);
-    
-    const char *env_argument = NULL;
-    const char *env_entrypoint = NULL;
-    const char *env_logname = NULL;
-    char entrypoint[ENTRYPOINT_MAXLEN];
+    const char *env_argument = env->GetStringUTFChars(j_android_argument, &iscopy);
+    const char *env_entrypoint = env->GetStringUTFChars(j_service_entrypoint, &iscopy);
+    const char *env_logname = env->GetStringUTFChars(j_python_name, &iscopy);
+
     int ret = 0;
     FILE *fd;
 
     LOGP("Initialize Python for Android");
-    env_argument = android_argument;
-    env_entrypoint = service_entrypoint;
-    env_logname = python_name;
 
     if (env_logname == NULL) {
         env_logname = "python";
         setenv("PYTHON_NAME", "python", 1);
     }
 
-    LOGP("Changing directory to the one provided by ANDROID_ARGUMENT");
+    LOGP("Changing directory to: ");
     LOGP(env_argument);
     chdir(env_argument);
 
     Py_SetProgramName(L"android_python");
-
     PyImport_AppendInittab("androidembed", initandroidembed);
 
     LOGP("Preparing to initialize python");
@@ -59,8 +47,7 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
         snprintf(paths, 256,
                  "%s/assets/python/stdlib.zip:%s/assets/python/modules",
                  env_argument, env_argument);
-        /* snprintf(paths, 256, "%s/stdlib.zip:%s/modules", env_argument,
-         * env_argument); */
+
         LOGP("calculated paths to be...");
         LOGP(paths);
 
@@ -76,17 +63,13 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
 
     LOGP("Initialized python");
 
-    /* ensure threads will work.
-     */
-    LOGP("AND: Init threads");
+    LOGP("Init threads");
     PyEval_InitThreads();
 
     PyRun_SimpleString("import androidembed\nandroidembed.log('testing python "
                                "print redirection')");
 
-    /* inject our bootstrap code to redirect python stdin/stdout
-     * replace sys.path with our path
-     */
+    // inject our bootstrap code to redirect python stdin/stdout replace sys.path with our path
     PyRun_SimpleString("import sys, posix\n");
 
 
@@ -100,61 +83,21 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
                                    "sys.argv = ['notaninterpreterreally']\n"
                                    "from os.path import realpath, join, dirname");
         PyRun_SimpleString(add_site_packages_dir);
-        /* "sys.path.append(join(dirname(realpath(__file__)), 'site-packages'))") */
         PyRun_SimpleString("sys.path = ['.'] + sys.path");
     }
 
+    LOGP("Trying to run a simple script in String:");
     PyRun_SimpleString(PYTHON_SIMPLE_SCRIPT.c_str());
-
     LOGP("AND: Ran string");
 
-    /* run it !
-     */
-    LOGP("Run user program, change dir and execute entrypoint");
 
-    /* Get the entrypoint, search the .pyo then .py
-     */
-    char *dot = strrchr(env_entrypoint, '.');
-    if (dot <= 0) {
-        LOGP("Invalid entrypoint, abort.");
-        return -1;
-    }
-    if (strlen(env_entrypoint) > ENTRYPOINT_MAXLEN - 2) {
-        LOGP("Entrypoint path is too long, try increasing ENTRYPOINT_MAXLEN.");
-        return -1;
-    }
-    if (!strcmp(dot, ".pyo")) {
-        if (!file_exists(env_entrypoint)) {
-            /* fallback on .py */
-            strcpy(entrypoint, env_entrypoint);
-            entrypoint[strlen(env_entrypoint) - 1] = '\0';
-            LOGP(entrypoint);
-            if (!file_exists(entrypoint)) {
-                LOGP("Entrypoint not found (.pyo, fallback on .py), abort");
-                return -1;
-            }
-        } else {
-            strcpy(entrypoint, env_entrypoint);
-        }
-    } else if (!strcmp(dot, ".py")) {
-        /* if .py is passed, check the pyo version first */
-        strcpy(entrypoint, env_entrypoint);
-        entrypoint[strlen(env_entrypoint) + 1] = '\0';
-        entrypoint[strlen(env_entrypoint)] = 'o';
-        if (!file_exists(entrypoint)) {
-            /* fallback on pure python version */
-            if (!file_exists(env_entrypoint)) {
-                LOGP("Entrypoint not found (.py), abort.");
-                return -1;
-            }
-            strcpy(entrypoint, env_entrypoint);
-        }
-    } else {
-        LOGP("Entrypoint have an invalid extension (must be .py or .pyo), abort.");
-        return -1;
-    }
-    // LOGP("Entrypoint is:");
-    // LOGP(entrypoint);
+    LOGP("Run user program, change dir and execute entrypoint");
+    char entrypoint[ENTRYPOINT_MAXLEN];
+    snprintf(entrypoint, 256, "%s/assets/python/main.py", env_argument);
+
+    LOGP("Entrypoint is:");
+    LOGP(entrypoint);
+
     fd = fopen(entrypoint, "r");
     if (fd == NULL) {
         LOGP("Open the entrypoint failed");
@@ -162,8 +105,7 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
         return -1;
     }
 
-    /* run python !
-     */
+    // Run python from main.py
     ret = PyRun_SimpleFile(fd, entrypoint);
 
     if (PyErr_Occurred() != NULL) {
@@ -171,18 +113,14 @@ JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
         PyErr_Print(); /* This exits with the right code if SystemExit. */
         PyObject *f = PySys_GetObject("stdout");
         if (PyFile_WriteString(
-                "\n", f)) /* python2 used Py_FlushLine, but this no longer exists */
+                "\n", f))
             PyErr_Clear();
     }
 
-    /* close everything
-     */
     Py_Finalize();
     fclose(fd);
 
     LOGP("Python for android ended.");
-
-
     return 0;
 }
 
