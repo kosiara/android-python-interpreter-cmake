@@ -13,15 +13,11 @@
 extern "C"
 JNIEXPORT jint JNICALL Java_com_example_bko_MainActivity_nativePythonStart (
         JNIEnv *env, jobject thiz,
-        jstring j_android_argument, jstring j_script_entrypoint, jstring j_python_name) {
+        jstring j_android_argument, jstring j_script_entrypoint) {
 
     jboolean iscopy;
     const char *env_argument = env->GetStringUTFChars(j_android_argument, &iscopy);
     const char *env_script_main_entrypoint = env->GetStringUTFChars(j_script_entrypoint, &iscopy);
-    const char *env_logname = env->GetStringUTFChars(j_python_name, &iscopy);
-
-    if (env_logname == NULL)
-        env_logname = "python";
 
     int ret = 0;
     FILE *fd;

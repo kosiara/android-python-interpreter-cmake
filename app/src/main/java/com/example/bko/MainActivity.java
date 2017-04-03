@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
         if (!new File(appDataDir + "/assets/python/stdlib.zip").exists())
             throw new RuntimeException("Assets haven't been extracted !");
 
-        nativePythonStart(androidArgument, serviceEntrypoint, "python3.5");
+        nativePythonStart(androidArgument, serviceEntrypoint);
     }
 
     /**
@@ -62,10 +62,9 @@ public class MainActivity extends AppCompatActivity {
      *
      * @param androidArgument
      * @param serviceEntrypoint
-     * @param pythonName
      * @return
      */
-    public static native int nativePythonStart(String androidArgument, String serviceEntrypoint, String pythonName);
+    public static native int nativePythonStart(String androidArgument, String serviceEntrypoint);
 
     public native String stringFromJNI();
 }
