@@ -1,5 +1,12 @@
 apply plugin: 'com.android.application'
 
+//--------------------------------------------------------------------------------------------------
+//------  HINT:   ----------------------------------------------------------------------------------
+//--  EDIT CMakeLists.txt file to set CrystaxSDK Path.                                          ----
+//--                                                                                            ----
+//--  Download from:  https://www.crystax.net/download/crystax-ndk-10.3.2-darwin-x86_64.tar.xz  ----
+//--------------------------------------------------------------------------------------------------
+
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
